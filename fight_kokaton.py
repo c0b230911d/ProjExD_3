@@ -8,7 +8,6 @@ import pygame as pg
 WIDTH = 1100  # ゲームウィンドウの幅
 HEIGHT = 650  # ゲームウィンドウの高さ
 NUM_OF_BOMBS = 5  # 爆弾の個数
-
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 
@@ -167,12 +166,10 @@ def main():
     screen = pg.display.set_mode((WIDTH, HEIGHT))
     bg_img = pg.image.load("fig/pg_bg.jpg")
     bird = Bird((300, 200))
-    bombs = pg.sprite.Group(Bomb((255, 0, 0), 10) for _ in range(NUM_OF_BOMBS))
-    score = Score()
-    beams = pg.sprite.Group()
-
-
-
+    bomb = Bomb((255, 0, 0), 10)
+    beam = None  # Beam(bird)  # ビームインスタンス生成
+    # bomb2 = Bomb((0, 0, 255), 20)   
+    bombs = [Bomb((255, 0, 0), 10) for _ in range(NUM_OF_BOMBS)] 
     clock = pg.time.Clock()
     tmr = 0
 
@@ -181,19 +178,20 @@ def main():
             if event.type == pg.QUIT:
                 return
             if event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
-                beams.add(Beam(bird))
-                print(beams)
-
+                # スペースキー押下でBeamクラスのインスタンス生成
+                beam = Beam(bird)            
         screen.blit(bg_img, [0, 0])
-
-        if pg.sprite.spritecollide(bird, bombs, False):
-            bird.change_img(8, screen)
-            fonto = pg.font.Font(None, 80)
-            txt = fonto.render("Game Over", True, (255, 0, 0))
-            screen.blit(txt, [WIDTH//2-150, HEIGHT//2])
-            pg.display.update()
-            time.sleep(1)
-            return
+        
+        for bomb in bombs:
+            if bird.rct.colliderect(bomb.rct):
+                # ゲームオーバー時に，こうかとん画像を切り替え，1秒間表示させる
+                bird.change_img(8, screen)
+                fonto = pg.font.Font(None, 80)
+                txt = fonto.render("Game Over", True, (255, 0, 0))
+                screen.blit(txt, [WIDTH//2-150, HEIGHT//2])
+                pg.display.update()
+                time.sleep(1)
+                return
 
        
         for beam in beams:  
